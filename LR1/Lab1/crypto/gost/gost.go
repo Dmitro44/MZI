@@ -70,7 +70,7 @@ func f(left uint32, subkey uint32) uint32 {
 	return result
 }
 
-func BlockEncrypt(input []byte, key []byte) []byte {
+func BlockEncryptParts(input []byte, key []byte) (uint32, uint32) {
 	left := binary.LittleEndian.Uint32(input[0:4])
 	right := binary.LittleEndian.Uint32(input[4:8])
 
@@ -80,13 +80,10 @@ func BlockEncrypt(input []byte, key []byte) []byte {
 		left, right = right^f(left, subkeys[i]), left
 	}
 
-	var combined []byte
-	binary.LittleEndian.PutUint32(combined[0:4], left)
-	binary.LittleEndian.PutUint32(combined[4:8], right)
-	return combined
+	return left, right
 }
 
-func BlockDecrypt(input []byte, key []byte) []byte {
+func BlockDecryptParts(input []byte, key []byte) (uint32, uint32) {
 	left := binary.LittleEndian.Uint32(input[0:4])
 	right := binary.LittleEndian.Uint32(input[4:8])
 
@@ -96,7 +93,22 @@ func BlockDecrypt(input []byte, key []byte) []byte {
 		left, right = right^f(left, subkeys[i]), left
 	}
 
-	var combined []byte
+	return left, right
+}
+
+func BlockEncrypt(input []byte, key []byte) []byte {
+	left, right := BlockEncryptParts(input, key)
+
+	combined := make([]byte, 8)
+	binary.LittleEndian.PutUint32(combined[0:4], left)
+	binary.LittleEndian.PutUint32(combined[4:8], right)
+	return combined
+}
+
+func BlockDecrypt(input []byte, key []byte) []byte {
+	left, right := BlockDecryptParts(input, key)
+
+	combined := make([]byte, 8)
 	binary.LittleEndian.PutUint32(combined[0:4], left)
 	binary.LittleEndian.PutUint32(combined[4:8], right)
 	return combined
