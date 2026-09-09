@@ -1,4 +1,4 @@
-package crypto
+package gost
 
 import (
 	"crypto/rand"
@@ -10,7 +10,7 @@ func Gamma(iv []byte, key []byte, length int) []byte {
 		panic("iv must be 8 byte")
 	}
 
-	n3, n4 := BlockEncryptParts(iv, key)
+	n3, n4 := BlockEncryptParts(iv, key, 32)
 
 	gamma := make([]byte, 0, length)
 	for len(gamma) < length {
@@ -29,7 +29,7 @@ func Gamma(iv []byte, key []byte, length int) []byte {
 		binary.LittleEndian.PutUint32(block[0:4], n3)
 		binary.LittleEndian.PutUint32(block[4:8], n4)
 
-		enc := BlockEncrypt(block, key)
+		enc := BlockEncrypt32(block, key)
 		gamma = append(gamma, enc...)
 	}
 

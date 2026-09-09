@@ -1,4 +1,4 @@
-package crypto
+package gost
 
 import "crypto/rand"
 
