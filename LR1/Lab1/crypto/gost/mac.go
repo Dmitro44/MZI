@@ -5,15 +5,6 @@ import (
 	"encoding/binary"
 )
 
-func zeroPad(data []byte) []byte {
-	padded := make([]byte, len(data))
-	if rem := len(data) % 8; rem != 0 {
-		padded = make([]byte, len(data)+8-rem)
-		copy(padded, data)
-	}
-	return padded
-}
-
 func MACProduce(data, key []byte, l int) []byte {
 	if l > 32 {
 		panic("l can't be more than 32")

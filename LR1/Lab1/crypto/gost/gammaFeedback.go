@@ -2,24 +2,6 @@ package gost
 
 import "crypto/rand"
 
-func pad(data []byte) []byte {
-	padLen := 8 - (len(data) % 8)
-	padded := make([]byte, len(data)+padLen)
-	copy(padded, data)
-	for i := len(data); i < len(padded); i++ {
-		padded[i] = byte(padLen)
-	}
-	return padded
-}
-
-func unpad(data []byte) []byte {
-	padLen := int(data[len(data)-1])
-	if padLen > 0 && padLen <= 8 {
-		return data[:len(data)-padLen]
-	}
-	return data
-}
-
 func GammaWithFeedbackEncrypt(data, key []byte) ([]byte, []byte) {
 	iv := make([]byte, 8)
 	if _, err := rand.Read(iv); err != nil {
