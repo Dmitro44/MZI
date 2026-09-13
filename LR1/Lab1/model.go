@@ -75,6 +75,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Global Bindings
 		switch {
 		case key.Matches(msg, m.Keymap.quit):
+			if m.shouldClearKey(msg) {
+				// let the focusable-element switch below handle it
+				break
+			}
 			m.Input.Blur()
 			m.Output.Blur()
 			m.Key.Blur()
@@ -123,6 +127,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Input.SetValue("")
 			m.Focus = FocusInput
 			m.updateFocus()
+			return m, nil
+		case m.shouldClearKey(msg):
+			m.Key.SetValue("")
 			return m, nil
 		case m.Focus == FocusInputMode && msg.String() == "enter":
 			m.InputMode = (m.InputMode + 1) % 2
@@ -429,15 +436,10 @@ func (m *model) updateFocus() {
 	if m.InputMode == File {
 		m.Input.Blur()
 	}
+}
 
-	// switch m.Method {
-	// case Caesar:
-	// 	m.Key.SetValue("")
-	// 	m.Key.Blur()
-	// case Vigenere:
-	// 	m.Shift.SetValue("")
-	// 	m.Shift.Blur()
-	// }
+func (m model) shouldClearKey(msg tea.KeyMsg) bool {
+	return m.Focus == FocusKey && key.Matches(msg, m.Keymap.clearKey) && m.Key.Value() != ""
 }
 
 func renderResult(method Method, decrypt bool, res, iv, mac []byte) string {
