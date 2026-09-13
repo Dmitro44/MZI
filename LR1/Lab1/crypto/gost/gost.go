@@ -16,15 +16,15 @@ var sbox = [8][16]uint8{
 	{12, 9, 6, 13, 1, 2, 8, 0, 15, 4, 10, 3, 11, 7, 5, 14},
 }
 
-func KeysForRound(key []byte) []uint32 {
+func KeysForRoundEncrypt(key []byte, rounds int) []uint32 {
 	subkeys := make([]uint32, 8)
 	for i := range 8 {
 		subkeys[i] = binary.LittleEndian.Uint32(key[i*4 : i*4+4])
 	}
 
-	result := make([]uint32, 32)
-	for i := range 32 {
-		if i < 24 {
+	result := make([]uint32, rounds)
+	for i := range rounds {
+		if i < rounds-8 {
 			result[i] = subkeys[i%8]
 		} else {
 			result[i] = subkeys[7-i%8]
@@ -34,14 +34,14 @@ func KeysForRound(key []byte) []uint32 {
 	return result
 }
 
-func KeysForRoundDecrypt(key []byte) []uint32 {
+func KeysForRoundDecrypt(key []byte, rounds int) []uint32 {
 	subkeys := make([]uint32, 8)
 	for i := range 8 {
 		subkeys[i] = binary.LittleEndian.Uint32(key[i*4 : i*4+4])
 	}
 
-	result := make([]uint32, 32)
-	for i := range 32 {
+	result := make([]uint32, rounds)
+	for i := range rounds {
 		if i < 8 {
 			result[i] = subkeys[i]
 		} else {
@@ -74,26 +74,26 @@ func BlockEncryptParts(input []byte, key []byte, rounds int) (uint32, uint32) {
 	left := binary.LittleEndian.Uint32(input[0:4])
 	right := binary.LittleEndian.Uint32(input[4:8])
 
-	subkeys := KeysForRound(key)
+	subkeys := KeysForRoundEncrypt(key, rounds)
 
 	for i := range rounds {
 		left, right = right^f(left, subkeys[i]), left
 	}
 
-	return left, right
+	return right, left
 }
 
 func BlockDecryptParts(input []byte, key []byte, rounds int) (uint32, uint32) {
 	left := binary.LittleEndian.Uint32(input[0:4])
 	right := binary.LittleEndian.Uint32(input[4:8])
 
-	subkeys := KeysForRoundDecrypt(key)
+	subkeys := KeysForRoundDecrypt(key, rounds)
 
 	for i := range rounds {
 		left, right = right^f(left, subkeys[i]), left
 	}
 
-	return left, right
+	return right, left
 }
 
 func BlockEncrypt32(input []byte, key []byte) []byte {
@@ -107,24 +107,6 @@ func BlockEncrypt32(input []byte, key []byte) []byte {
 
 func BlockDecrypt32(input []byte, key []byte) []byte {
 	left, right := BlockDecryptParts(input, key, 32)
-
-	combined := make([]byte, 8)
-	binary.LittleEndian.PutUint32(combined[0:4], left)
-	binary.LittleEndian.PutUint32(combined[4:8], right)
-	return combined
-}
-
-func BlockEncrypt16(input []byte, key []byte) []byte {
-	left, right := BlockEncryptParts(input, key, 16)
-
-	combined := make([]byte, 8)
-	binary.LittleEndian.PutUint32(combined[0:4], left)
-	binary.LittleEndian.PutUint32(combined[4:8], right)
-	return combined
-}
-
-func BlockDecrypt16(input []byte, key []byte) []byte {
-	left, right := BlockDecryptParts(input, key, 16)
 
 	combined := make([]byte, 8)
 	binary.LittleEndian.PutUint32(combined[0:4], left)
