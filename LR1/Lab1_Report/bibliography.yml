@@ -1,0 +1,35 @@
+gost28147:
+  type: Misc
+  title:
+    value: "Системы обработки информации. Защита криптографическая. Алгоритм криптографического преобразования : ГОСТ 28147-89. – Введ. 01.07.1990"
+    short: ""
+  page-total: 28
+  publisher:
+    name: Издательство стандартов
+    location: М.
+  date: 1989
+  language: ru
+
+gost34122015:
+  type: Misc
+  title:
+    value: "Информационная технология. Криптографическая защита информации. Блочные шифры : ГОСТ Р 34.12-2015. – Введ. 01.01.2016"
+    short: ""
+  page-total: 16
+  publisher:
+    name: Стандартинформ
+    location: М.
+  date: 2015
+  language: ru
+
+rfc5830:
+  type: Web
+  title:
+    value: "Use of the GOST 28147-89, GOST R 34.11-94, GOST R 34.10-94, and GOST R 34.10-2001 Algorithms in the Secure Shell (SSH) Transport Protocol : RFC 5830"
+    short: ""
+  author: ["Leontiev, A.", "Chuprina, G."]
+  date: 2010
+  url:
+    value: https://datatracker.ietf.org/doc/html/rfc5830
+    date: 2025-10-01
+  language: en
