@@ -40,12 +40,3 @@ var (
 			Padding(1, 2).
 			Width(40)
 )
-
-func panelStyle(width, height int) lipgloss.Style {
-	return lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(borderColor).
-		Padding(1).
-		Width(width).
-		Height(height)
-}

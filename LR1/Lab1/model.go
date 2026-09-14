@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 func (m model) Init() tea.Cmd {
@@ -303,7 +304,11 @@ func (m model) View() string {
 	}
 	saveBtnLabel := label
 
-	leftPanel := lipgloss.JoinVertical(
+	innerWidth := LeftPanelWidth - 2
+	// Hardwrap keeps "> " attached to the key; word-wrap would push it to its own line.
+	keyWrapped := ansi.Hardwrap(m.Key.View(), innerWidth, true)
+
+	leftContent := lipgloss.JoinVertical(
 		lipgloss.Left,
 		inputModeLabel,
 		inputModeValue,
@@ -315,14 +320,25 @@ func (m model) View() string {
 		modeValue,
 		"",
 		keyLabel,
-		m.Key.View(),
+		keyWrapped,
 		"",
 		"",
 		runBtnLabel,
 		saveBtnLabel,
 	)
 
-	leftPanel = panelStyle(LeftPanelWidth, layout.LeftPanelHeight).Render(lipgloss.PlaceVertical(layout.LeftPanelHeight, lipgloss.Top, leftPanel))
+	wrappedContent := lipgloss.NewStyle().Width(innerWidth).Render(leftContent)
+
+	innerHeight := layout.LeftPanelHeight
+	if wrappedHeight := lipgloss.Height(wrappedContent); wrappedHeight < innerHeight {
+		wrappedContent = lipgloss.PlaceVertical(innerHeight, lipgloss.Top, wrappedContent)
+	}
+
+	leftPanel := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(borderColor).
+		Padding(1).
+		Render(wrappedContent)
 
 	inputPanelStyle := lipgloss.NewStyle().
 		Height(layout.TopPanelHeight).
